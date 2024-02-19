@@ -5,7 +5,7 @@ import sqlite3 as sl
 import my_data_base
 import gspread
 
-# sds
+
 bot = telebot.TeleBot(config.TOKEN)
 states = {}
 gs = gspread.service_account(filename="my-test-project-408312-296aa9c49a83.json")
@@ -18,27 +18,24 @@ category = {}
 info_dishes = {}
 shop_bag = {}
 
-# Словарь с категориями и продуктами (category)
+
 for i in list_of_list[1:]:
     category.setdefault(i[4], []).append(i[1])
 
-# Словарь с продуктами и их описанием (info_dishes)
+
 for name in list_of_list[1:]:
     info_dishes[name[1]] = [name[0], name[2], name[3]]
 
-print(category)
-print(info_dishes)
 
-# Главная клавиатура
 markupI = InlineKeyboardMarkup()
 for name in category.keys():
     markupI.add(InlineKeyboardButton(name, callback_data=name))
 
 markup = InlineKeyboardMarkup()
 markup.add(InlineKeyboardButton('В меню', callback_data='3'))
-
 @bot.callback_query_handler(func=lambda call: True)
 def query_handler(call):
+    user_id = call.from_user.id
     if call.data in category:
         message_id = call.message.message_id
         show_dishes_menu(call.data, call.from_user.id, message_id)
@@ -50,11 +47,52 @@ def query_handler(call):
         show_dish_info(call.data[1:], call.message.chat.id)
 
     elif call.data[0] == '0':
-        add_to_shop_bag(call.data[1:])
+        add_to_shop_bag(call.data[1:], call.from_user.id)
 
-def add_to_shop_bag(data):
-    shop_bag[data] = info_dishes[data][1:]
-    print(shop_bag)
+    elif call.data == 'shop_bag':
+        if shop_bag:
+            response = '\n'.join(
+                [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
+            markupG = InlineKeyboardMarkup()
+            markupG.add(InlineKeyboardButton('Изменить корзину', callback_data='change'))
+            markupG.add(InlineKeyboardButton('Очистить корзину', callback_data='clear'))
+            markupG.add(InlineKeyboardButton("Оформить заказ",callback_data="order"))
+            bot.send_message(call.message.chat.id, response, reply_markup=markupG)
+        else:
+            bot.send_message(call.message.chat.id, 'Корзина пуста.', reply_markup=markup)
+
+    elif call.data == 'clear':
+        shop_bag.clear()
+        bot.send_message(call.message.chat.id, 'Корзина пуста.', reply_markup=markup)
+
+    elif call.data == "order":
+        price = 0
+        print(shop_bag)
+        for dish, details in shop_bag.items():
+            name_dishes = dish
+            price =price+ int(details[1])
+            counts = details[2]
+            my_data_base.upd(name_dishes, counts)
+        count = 0
+        count = count+1
+        response = '\n'.join(
+            [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
+        my_data_base.upd_user(user_id,shop_bag)
+        bot.send_message(call.message.chat.id,f"Ваш заказ №{count}")
+        bot.send_message(call.message.chat.id, "____________________")
+        bot.send_message(call.message.chat.id,f"Состав заказа : {response}")
+        bot.send_message(call.message.chat.id,f"Конечная стоимость:{price} ")
+
+
+
+def add_to_shop_bag(data, chat_id):
+    shop_bag[data] = shop_bag.get(data, info_dishes[data][1:] + [0])
+    shop_bag[data][-1] += 1
+    markupI = InlineKeyboardMarkup()
+    markupI.add(InlineKeyboardButton('В меню', callback_data='3'))
+    markupI.add(InlineKeyboardButton('Просмотр корзины', callback_data='shop_bag'))
+    bot.send_message(chat_id, 'Товар успешно добавлен.', reply_markup=markupI)
+
 
 def show_dishes_menu(category_key, user_id, message_id):
     markup = InlineKeyboardMarkup()
@@ -82,7 +120,6 @@ def show_dish_info(dish_key, chat_id):
 def list_admins(message):
     us_id = message.from_user.id
 
-    # Проверка, является ли отправитель администратором
     if str(us_id) in config.ADMIN_ID:
         admins_list = "\n".join([str(admin_id) for admin_id in config.ADMIN_ID])
         bot.send_message(message.chat.id, f"Список администраторов:\n{admins_list}")
@@ -93,13 +130,17 @@ def list_admins(message):
 @bot.message_handler(commands=['start'])
 def start(message):
     user_id = message.from_user.id
+
     if my_data_base.is_user_exest(user_id):
         bot.send_message(message.chat.id, "Привет! Ты уже зарегистрирован.")
+        states[user_id] = 'начало'
+        print(states)
     else:
 
         bot.send_message(message.chat.id, "Привет! Давай начнем. Введи свои данные.")
         name = bot.send_message(message.chat.id, "Введите свое имя: ")
         bot.register_next_step_handler(name, names)
+
 
 def names(message):
     global user_names
@@ -120,6 +161,8 @@ def adr(message):
     user_id = message.from_user.id
     insert_user_data(user_id,user_names,tele,adres)
     bot.send_message(message.chat.id, "Данные будут успешно добавлены ")
+    states[user_id] = 'начало'
+    print(states)
 
 
 
@@ -140,7 +183,7 @@ def bd(message):
         bot.send_message(message.chat.id,f"ID:{d[1]}")
         bot.send_message(message.chat.id, f"Имя:{d[2]}")
         bot.send_message(message.chat.id, f"Номер:{d[3]}")
-        bot.send_message(message.chat.id, "_________________________")
+
 
 
 @bot.message_handler(commands=['admin'])
@@ -157,14 +200,28 @@ def admin(message):
 
 @bot.message_handler(commands=['menu'])
 def handle_start(message):
+    user_id = message.from_user.id
     bot.send_message(message.chat.id, "Выберите категорию блюда ⬇️", reply_markup=markupI)
+    states[user_id] = 'пользователь в меню '
+    print(states)
 
 
 
 @bot.message_handler(commands=['shop_bag'])
 def shopping_bag(message):
-    response = "Ваша корзина пуста." if not shop_bag else "В корзине есть продукты."
-    bot.send_message(message.chat.id, response, reply_markup=markup)
+    user_id = message.from_user.id
+    if not shop_bag:
+        states[user_id] = "юзер в корзине "
+        print(states)
+        response = "Ваша корзина пуста."
+        bot.send_message(message.chat.id, response, reply_markup=markup)
+    else:
+        response = '\n'.join(
+            [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
+        markup.add(InlineKeyboardButton('Изменить корзину', callback_data='change'))
+        markup.add(InlineKeyboardButton('Очистить корзину', callback_data='clear'))
+        markup.add(InlineKeyboardButton('Оформить заказ', callback_data='order'))
+        bot.send_message(message.chat.id, response, reply_markup=markup)
 
 
 @bot.message_handler(commands=['show_all_admins'])
@@ -176,7 +233,7 @@ def show_all_admins(message):
         bot.send_message(message.chat.id, "_________________________")
         bot.send_message(message.chat.id, f"ID:{d[1]}")
         bot.send_message(message.chat.id, f"Статус:{d[2]}")
-        bot.send_message(message.chat.id,"_________________________")
+
 
 
 
