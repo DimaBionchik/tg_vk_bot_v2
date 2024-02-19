@@ -5,7 +5,7 @@ import sqlite3 as sl
 import my_data_base
 import gspread
 
-
+# sds
 bot = telebot.TeleBot(config.TOKEN)
 states = {}
 gs = gspread.service_account(filename="my-test-project-408312-296aa9c49a83.json")
