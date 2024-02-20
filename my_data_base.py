@@ -20,6 +20,16 @@ def create_con(con):
             status VARCHAR);""")
 
 
+
+
+def insert_user_data( user_id, user_name, user_tel, user_address):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("""
+            INSERT INTO Users (tg_id, name, tel, adress) 
+            VALUES (?, ?, ?, ?);
+        """, (str(user_id), user_name, user_tel, user_address))
+
 def format_basket_item(name, item):
     time, price_per_unit, quantity = map(int, item)
     total_price = quantity * price_per_unit
@@ -44,7 +54,35 @@ def upd(name_dishes, counts):
         WHERE name_dishes = '{name_dishes}'
         """)
 
-upd("Суп с фрикадельками", 2)
+
+
+def check_dishes():
+    con = sl.connect("vk_tg1.db")
+    with con :
+        cur = con.cursor()
+        cur.execute("SELECT name_dishes,count FROM Dishes WHERE count <=5")
+        dishes_min_quantity = cur.fetchall()
+
+        if dishes_min_quantity:
+            message = "Продукты с маленьки количеством:\n"
+            for products in dishes_min_quantity:
+                name,count = products
+                message+= f"{name}: {count}\n"
+
+            return message
+        else:
+            return "Все продукты в достатке "
+
+
+
+
+# def delete():
+#     con = sl.connect("vk_tg1.db")
+#     with con:
+#         con.execute("""
+#         DELETE FROM Dishes
+#           """)
+# delete()
 #
 # def create_table():
 #     con = sl.connect("vk_tg1.db")
@@ -58,19 +96,44 @@ upd("Суп с фрикадельками", 2)
 #                     price VARCHAR);""")
 #
 #
-# def insert(con,id,name ,tel,adress):
-#     with con :
-#         con.execute("INSERT OR IGNORE INTO Users(tg_id,name,tel,adress) VALUES(?,?,?,?)",[id,name,tel,adress])
+def insert(name,count, time,price):
+    con = sl.connect("vk_tg1.db")
+    with con :
+        con.execute("INSERT  INTO Dishes(name_dishes,count,time,price) VALUES(?,?,?,?)",[name,count,time,price])
+
+
+def insert():
+    con = sl.connect("vk_tg1.db")
+    with con :
+        con.execute("""DELETE FROM Users WHERE tg_id=718611792""")
+
+# insert()
+
+
+# insert("Борщ",20,15,7)
+# insert("Суп с фрикадельками",20,15,5)
+# insert("Гороховый суп",20,20,6)
+# insert("Овсянка",20,20,5)
+# insert("Гречка",20,10,5)
+# insert("Рис",20,12,4)
+# insert('Пицца "Маргарита"',20,25,18)
+# insert('Пицца "Пепперони"',20,25,21)
+# insert('Пицца "Италия"',20,30,23)
+# insert("Cola",20,0,3)
+# insert("Fanta",20,0,3)
+# insert("Sprite",20,0,3)
+
+
 #
 #
 #
 #
-# def is_user_exest(user_id):
-#     con = sl.connect("vk_tg1.db")
-#     with con :
-#         result = con.execute("SELECT 1 FROM Users WHERE tg_id = ?", (str(user_id),)).fetchone()
-#         return result is not None
-#
+def is_user_exest(user_id):
+    con = sl.connect("vk_tg1.db")
+    with con :
+        result = con.execute("SELECT 1 FROM Users WHERE tg_id = ?", (str(user_id),)).fetchone()
+        return result is not None
+
 # def insert_user_data( user_id, user_name):
 #     con = sl.connect("vk_tg1.db")
 #     with con:
