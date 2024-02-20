@@ -67,21 +67,25 @@ def query_handler(call):
 
     elif call.data == "order":
         price = 0
+        count = 0
         print(shop_bag)
         for dish, details in shop_bag.items():
             name_dishes = dish
             price =price+ int(details[1])
             counts = details[2]
             my_data_base.upd(name_dishes, counts)
-        count = 0
-        count = count+1
+        count += 1
         response = '\n'.join(
             [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
         my_data_base.upd_user(user_id,shop_bag)
+        bot.send_message(chat_id="-4102272659", text=f" Пользователь({user_id}), оформил заказ :{response} ")
+        message = my_data_base.check_dishes()
+        bot.send_message(chat_id="-4102272659", text=f" {message} ")
         bot.send_message(call.message.chat.id,f"Ваш заказ №{count}")
         bot.send_message(call.message.chat.id, "____________________")
         bot.send_message(call.message.chat.id,f"Состав заказа : {response}")
         bot.send_message(call.message.chat.id,f"Конечная стоимость:{price} ")
+        shop_bag.clear()
 
 
 
@@ -159,20 +163,13 @@ def adr(message):
     global adres
     adres = message.text
     user_id = message.from_user.id
-    insert_user_data(user_id,user_names,tele,adres)
+    my_data_base.insert_user_data(user_id,user_names,tele,adres)
     bot.send_message(message.chat.id, "Данные будут успешно добавлены ")
     states[user_id] = 'начало'
     print(states)
 
 
 
-def insert_user_data( user_id, user_name, user_tel, user_address):
-    con = sl.connect("vk_tg1.db")
-    with con:
-        con.execute("""
-            INSERT INTO Users (tg_id, name, tel, adress) 
-            VALUES (?, ?, ?, ?);
-        """, (str(user_id), user_name, user_tel, user_address))
 
 @bot.message_handler(commands=['show_user'])
 def bd(message):
@@ -201,27 +198,32 @@ def admin(message):
 @bot.message_handler(commands=['menu'])
 def handle_start(message):
     user_id = message.from_user.id
-    bot.send_message(message.chat.id, "Выберите категорию блюда ⬇️", reply_markup=markupI)
-    states[user_id] = 'пользователь в меню '
-    print(states)
-
+    if my_data_base.is_user_exest(user_id):
+        bot.send_message(message.chat.id, "Выберите категорию блюда ⬇️", reply_markup=markupI)
+        states[user_id] = 'пользователь в меню '
+        print(states)
+    else:
+        bot.send_message(message.chat.id,"Вы не зарегистрированы!  Нажмите /start  и пройдите регистрацию")
 
 
 @bot.message_handler(commands=['shop_bag'])
 def shopping_bag(message):
     user_id = message.from_user.id
-    if not shop_bag:
-        states[user_id] = "юзер в корзине "
-        print(states)
-        response = "Ваша корзина пуста."
-        bot.send_message(message.chat.id, response, reply_markup=markup)
+    if my_data_base.is_user_exest(user_id):
+        if not shop_bag:
+            states[user_id] = "юзер в корзине "
+            print(states)
+            response = "Ваша корзина пуста."
+            bot.send_message(message.chat.id, response, reply_markup=markup)
+        else:
+            response = '\n'.join(
+                [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
+            markup.add(InlineKeyboardButton('Изменить корзину', callback_data='change'))
+            markup.add(InlineKeyboardButton('Очистить корзину', callback_data='clear'))
+            markup.add(InlineKeyboardButton('Оформить заказ', callback_data='order'))
+            bot.send_message(message.chat.id, response, reply_markup=markup)
     else:
-        response = '\n'.join(
-            [f'{item} [x{details[2]}] = {int(details[1]) * int(details[2])} BYN' for item, details in shop_bag.items()])
-        markup.add(InlineKeyboardButton('Изменить корзину', callback_data='change'))
-        markup.add(InlineKeyboardButton('Очистить корзину', callback_data='clear'))
-        markup.add(InlineKeyboardButton('Оформить заказ', callback_data='order'))
-        bot.send_message(message.chat.id, response, reply_markup=markup)
+        bot.send_message(message.chat.id, "Вы не зарегистрированы!  Нажмите /start и пройдите регистрацию")
 
 
 @bot.message_handler(commands=['show_all_admins'])
@@ -240,7 +242,11 @@ def show_all_admins(message):
 @bot.message_handler(commands=["help"])
 def help(message):
     user_id = message.from_user.id
-    bot.send_message(chat_id="-4102272659", text=f"{user_id} требует помощи ")
+    if my_data_base.is_user_exest(user_id):
+        bot.send_message(chat_id="-4102272659", text=f"{user_id} требует помощи ")
+    else:
+        bot.send_message(message.chat.id, "Вы не зарегистрированы!  Нажмите /start и пройдите регистрацию")
+
 
 print("e")
 bot.polling(none_stop=True)
