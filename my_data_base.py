@@ -33,7 +33,9 @@ def insert_user_data( user_id, user_name, user_tel, user_address):
 def format_basket_item(name, item):
     time, price_per_unit, quantity = map(int, item)
     total_price = quantity * price_per_unit
-    return f"{name}: {quantity} шт., {price_per_unit} цена/шт., {time} время, {total_price} цена"
+    final_price = 0
+    final_price+=total_price
+    return f"{name}: количество {quantity} ., цена за штуку {price_per_unit}  ., время приготовления {time} ,конечная цена  {total_price}  "
 
 def upd_user(user_id,baskets):
     con = sl.connect("vk_tg1.db")
@@ -73,6 +75,17 @@ def check_dishes():
         else:
             return "Все продукты в достатке "
 
+
+def create_new_table(answer):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("""
+                    CREATE TABLE IF NOT EXISTS Dishes_answer(
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    id_dishes VARCHAR,
+                    answer VARCHAR,
+                    Rate VARCHAR );
+                    """)
 
 
 
@@ -133,6 +146,13 @@ def is_user_exest(user_id):
     with con :
         result = con.execute("SELECT 1 FROM Users WHERE tg_id = ?", (str(user_id),)).fetchone()
         return result is not None
+
+
+def get_order(user_id):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        result = con.execute("SELECT BASKET FROM Users WHERE tg_id =?", (str(user_id),)).fetchone()
+        return result
 
 # def insert_user_data( user_id, user_name):
 #     con = sl.connect("vk_tg1.db")
