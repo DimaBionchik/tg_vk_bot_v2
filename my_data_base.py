@@ -88,33 +88,28 @@ def create_new_table(answer):
                     """)
 
 
+def create_new_tables():
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("""
+                    CREATE TABLE IF NOT EXISTS Dishes_answer(
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    basket VARCHAR,
+                    id_person VARCHAR,
+                    feedback VARCHAR,
+                    rate VARCHAR );
+                    """)
 
-# def delete():
-#     con = sl.connect("vk_tg1.db")
-#     with con:
-#         con.execute("""
-#         DELETE FROM Dishes
-#           """)
-# delete()
-#
-# def create_table():
-#     con = sl.connect("vk_tg1.db")
-#     with con:
-#         con.execute("""
-#                     CREATE TABLE IF NOT EXISTS Dishes(
-#                     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-#                     name_dishes VARCHAR,
-#                     count INTEGER,
-#                     time VARCHAR,
-#                     price VARCHAR);""")
-#
-#
+
 def insert(name,count, time,price):
     con = sl.connect("vk_tg1.db")
     with con :
         con.execute("INSERT  INTO Dishes(name_dishes,count,time,price) VALUES(?,?,?,?)",[name,count,time,price])
 
-
+def add_new_admin(id,status):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("INSERT  INTO ADMIN(tg_id,status) VALUES(?,?)", [id,status])
 def insert():
     con = sl.connect("vk_tg1.db")
     with con :
@@ -122,25 +117,25 @@ def insert():
 
 # insert()
 
+def insert_into_disches(name,count,time,price):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("INSERT  INTO Dishes(name_dishes,count,time,price) VALUES(?,?,?,?)", [name,count,time,price])
 
-# insert("Борщ",20,15,7)
-# insert("Суп с фрикадельками",20,15,5)
-# insert("Гороховый суп",20,20,6)
-# insert("Овсянка",20,20,5)
-# insert("Гречка",20,10,5)
-# insert("Рис",20,12,4)
-# insert('Пицца "Маргарита"',20,25,18)
-# insert('Пицца "Пепперони"',20,25,21)
-# insert('Пицца "Италия"',20,30,23)
-# insert("Cola",20,0,3)
-# insert("Fanta",20,0,3)
-# insert("Sprite",20,0,3)
+def insert_into_disches(basket,id,fedback):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        con.execute("INSERT  INTO Dishes_answer(basket,id_person,feedback) VALUES(?,?,?)",[basket, id,fedback])
 
 
-#
-#
-#
-#
+
+
+
+
+
+
+
+
 def is_user_exest(user_id):
     con = sl.connect("vk_tg1.db")
     with con :
@@ -154,12 +149,5 @@ def get_order(user_id):
         result = con.execute("SELECT BASKET FROM Users WHERE tg_id =?", (str(user_id),)).fetchone()
         return result
 
-# def insert_user_data( user_id, user_name):
-#     con = sl.connect("vk_tg1.db")
-#     with con:
-#         con.execute("""
-#             INSERT INTO ADMIN (tg_id, status)
-#             VALUES (?, ?);
-#         """, (str(user_id), user_name))
 
 
