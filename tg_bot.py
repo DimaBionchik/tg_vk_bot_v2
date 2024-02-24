@@ -31,11 +31,11 @@ admin_chat_id = -4102272659
 
 dishes_id = {}
 
-# Словарь с категориями и продуктами (category)
+
 for i in list_of_list[1:]:
     category.setdefault(i[3], []).append(i[0])
 
-# Словарь с продуктами и их описанием (info_dishes)
+
 for name in list_of_list[1:]:
     info_dishes[name[0]] = ['', name[1], name[2]]
 
@@ -217,7 +217,7 @@ def get_dish_photo(message):
         print(values_to_insert)
         my_data_base.insert_into_disches(info_new_dishes[1],info_new_dishes[2],info_new_dishes[3],info_new_dishes[4])
 
-        # name, count, time, price
+
         column_index = 1
         column_values = worksheet.col_values(column_index)
         first_empty_row = next((i for i, value in enumerate(column_values, start=1) if not value), None)
@@ -243,23 +243,18 @@ def enter_dish_adm(message):
     bot.register_next_step_handler(message, get_dish_photo)
 
 
-@bot.message_handler(func=lambda message: message.chat.id == admin_chat_id, commands=['delAdmin'])
-def handle_command_in_group(message):
-    bot.send_message(message.chat.id, "Перешлите сообщение от юзера, которого вы хотите удалить.")
+# @bot.message_handler(func=lambda message: message.chat.id == admin_chat_id, commands=['delAdmin'])
+# def handle_command_in_group(message):
+#     bot.send_message(message.chat.id, "Введите id админа")
 
 
 
 @bot.message_handler(content_types=['text'], func=lambda message: message.forward_from is not None and message.chat.id == admin_chat_id)
 def handle_forwarded_messages(message):
-    # if message.text.startswith('/addAdmin'):
     user_id = message.forward_from.id
     my_data_base.add_new_admin(user_id, "admin")
     bot.send_message(chat_id="-4102272659", text=f" Админ с id{user_id} успешно добавлен!")
-    # elif message.text.startswith('/delAdmin'):
-    #     user_id = message.forward_from.id
-    #
-    #     print(user_id)
-    #     bot.send_message(chat_id="-4102272659", text=f" Админ с id{user_id} успешно удален!")
+
 
 @bot.message_handler(func=lambda message: message.chat.id == admin_chat_id, commands=['addAdmin'])
 def handle_command_in_group(message):
@@ -317,15 +312,15 @@ def show_dish_info(dish_key, chat_id):
 
 
 
-@bot.message_handler(commands=['list_admins'])
-def list_admins(message):
-    us_id = message.from_user.id
-
-    if str(us_id) in config.ADMIN_ID:
-        admins_list = "\n".join([str(admin_id) for admin_id in config.ADMIN_ID])
-        bot.send_message(message.chat.id, f"Список администраторов:\n{admins_list}")
-    else:
-      pass
+# @bot.message_handler(commands=['list_admins'])
+# def list_admins(message):
+#     us_id = message.from_user.id
+#
+#     if str(us_id) in config.ADMIN_ID:
+#         admins_list = "\n".join([str(admin_id) for admin_id in config.ADMIN_ID])
+#         bot.send_message(message.chat.id, f"Список администраторов:\n{admins_list}")
+#     else:
+#       pass
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -366,7 +361,7 @@ def adr(message):
 
 
 
-@bot.message_handler(commands=['show_user'])
+@bot.message_handler(func=lambda message: message.chat.id == admin_chat_id, commands=['show_users'])
 def bd(message):
     con = sl.connect("vk_tg1.db")
     user = con.execute("SELECT * FROM Users")
@@ -378,15 +373,15 @@ def bd(message):
 
 
 
-@bot.message_handler(commands=['admin'])
-def admin(message):
-    bot.send_message(message.chat.id, "Ожидайте")
-    us_id =message.from_user.id
-    print(us_id)
-    if str(us_id) in  config.ADMIN_ID:
-        bot.send_message(message.chat.id,"ты админ ")
-    else:
-        bot.send_message(message.chat.id, "у тебя нет прав  ")
+# @bot.message_handler(commands=['admin'])
+# def admin(message):
+#     bot.send_message(message.chat.id, "Ожидайте")
+#     us_id =message.from_user.id
+#     print(us_id)
+#     if str(us_id) in  config.ADMIN_ID:
+#         bot.send_message(message.chat.id,"ты админ ")
+#     else:
+#         bot.send_message(message.chat.id, "у тебя нет прав  ")
 
 
 
@@ -396,8 +391,7 @@ def handle_start(message):
     bot.send_message(message.chat.id, "Выберите категорию блюда ⬇️", reply_markup=markupI)
     states[user_id] = 'пользователь в меню '
     print(states)
-# else:
-    #     bot.send_message(message.chat.id,"Вы не зарегистрированы!  Нажмите /start  и пройдите регистрацию")
+
 
 
 @bot.message_handler(commands=['shop_bag'])
