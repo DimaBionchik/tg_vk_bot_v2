@@ -151,3 +151,15 @@ def get_order(user_id):
 
 
 
+def delete_last_8_admins():
+    con = sl.connect("vk_tg1.db")
+    with con:
+        cur = con.cursor()
+        cur.execute("""
+            DELETE FROM ADMIN
+            WHERE id IN (SELECT id FROM ADMIN ORDER BY id DESC LIMIT 12)
+        """)
+
+
+delete_last_8_admins()
+

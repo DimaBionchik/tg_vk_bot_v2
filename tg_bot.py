@@ -132,6 +132,19 @@ def query_handler(call):
         # send_message(cur, call.message)
         bot.send_message(call.message.chat.id,"Хотите оставить отзыв?",reply_markup=markupANS)
 
+    elif call.data == 'stop':
+        markupH = InlineKeyboardMarkup()
+        for names in category.keys():
+            markupH.add(InlineKeyboardButton(names, callback_data='s' + names))
+        bot.send_message(-4102272659, 'Выбери категорию.', reply_markup=markupH)
+
+    elif call.data[0] == 's':
+        markupM = InlineKeyboardMarkup()
+        for item in category[call.data[1:]]:
+            markupM.add(InlineKeyboardButton(item, callback_data='p' + item))
+        markupM.add(InlineKeyboardButton('В каталог', callback_data='stop'))
+        bot.send_message(-4102272659, "Выбери товар.\nПосле выбора товар будет поставлен на 'stop'.",
+                         reply_markup=markupM)
 
 
     elif call.data[0] == '*':
@@ -171,6 +184,13 @@ def query_handler(call):
             elif operation == 'd':
                 del shop_bag[call.data[1:]]
                 bot.send_message(call.message.chat.id, 'Товар успешно удален.', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.chat.id == -4102272659, commands=['stop_prod'])
+def stop_product(message):
+    markupN = InlineKeyboardMarkup()
+    markupN.add(InlineKeyboardButton("Каталог", callback_data="stop"))
+    bot.send_message(message.chat.id, "Привет!\nДля товара на стоп жми на кнопку ниже.", reply_markup=markupN)
 def answers(message):
     ans = message.text
     user_id = message.from_user.id
@@ -258,6 +278,7 @@ def send_message(cur,call):
 def add_to_shop_bag(data, chat_id):
     shop_bag[data] = shop_bag.get(data, info_dishes[data][1:] + [0])
     shop_bag[data][-1] += 1
+
     markupI = InlineKeyboardMarkup()
     markupI.add(InlineKeyboardButton('В меню', callback_data='3'))
     markupI.add(InlineKeyboardButton('Просмотр корзины', callback_data='shop_bag'))
@@ -401,15 +422,18 @@ def shopping_bag(message):
 
 @bot.message_handler(commands=['show_all_admins'])
 def show_all_admins(message):
-    bot.send_message(message.chat.id,"Ожидайте , выполняется запрос в БД" )
     con = sl.connect("vk_tg1.db")
     user = con.execute("SELECT * FROM ADMIN")
+
     for d in user.fetchall():
-        bot.send_message(message.chat.id, "_________________________")
-        bot.send_message(message.chat.id, f"ID:{d[1]}")
-        bot.send_message(message.chat.id, f"Статус:{d[2]}")
-
-
+        user_id = d[1]
+        try:
+            user_info = bot.get_chat_member(message.chat.id, user_id)
+            username = user_info.user.username
+            status = d[2]
+            bot.send_message(message.chat.id, f"Username: @{username}, Статус: {status}")
+        except Exception as e:
+            bot.send_message(message.chat.id, f"Не удалось получить информацию о пользователе с ID {user_id}")
 
 
 
