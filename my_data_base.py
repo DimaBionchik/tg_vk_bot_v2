@@ -115,14 +115,31 @@ def insert():
     with con :
         con.execute("""DELETE FROM Users WHERE tg_id=718611792""")
 
+
+
+def inserts():
+    con = sl.connect("vk_tg1.db")
+    with con :
+        con.execute("""DELETE FROM ADMIN WHERE tg_id=718611792""")
+
+
+
+def delete(admin_id):
+    con = sl.connect("vk_tg1.db")
+    with con :
+        con.execute(f"DELETE FROM ADMIN WHERE tg_id={admin_id}")
+
+
+
 # insert()
+# inserts()
 
 def insert_into_disches(name,count,time,price):
     con = sl.connect("vk_tg1.db")
     with con:
         con.execute("INSERT  INTO Dishes(name_dishes,count,time,price) VALUES(?,?,?,?)", [name,count,time,price])
 
-def insert_into_disches(basket,id,fedback):
+def insert_into_disches_answer(basket,id,fedback):
     con = sl.connect("vk_tg1.db")
     with con:
         con.execute("INSERT  INTO Dishes_answer(basket,id_person,feedback) VALUES(?,?,?)",[basket, id,fedback])
@@ -142,6 +159,19 @@ def is_user_exest(user_id):
         result = con.execute("SELECT 1 FROM Users WHERE tg_id = ?", (str(user_id),)).fetchone()
         return result is not None
 
+def is_admin_exest(admin_id):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        result = con.execute("SELECT 1 FROM ADMIN WHERE tg_id = ?", (str(admin_id),)).fetchone()
+        return result is not None
+
+
+def is_super_admin(ad_id):
+    con = sl.connect("vk_tg1.db")
+    with con:
+        result = con.execute("SELECT 1 FROM ADMIN WHERE tg_id = ?", (str(ad_id),)).fetchone()
+        return result is not None
+
 
 def get_order(user_id):
     con = sl.connect("vk_tg1.db")
@@ -151,15 +181,7 @@ def get_order(user_id):
 
 
 
-def delete_last_8_admins():
-    con = sl.connect("vk_tg1.db")
-    with con:
-        cur = con.cursor()
-        cur.execute("""
-            DELETE FROM ADMIN
-            WHERE id IN (SELECT id FROM ADMIN ORDER BY id DESC LIMIT 12)
-        """)
 
 
-delete_last_8_admins()
+
 

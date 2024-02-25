@@ -1,5 +1,6 @@
 TOKEN = '6785210916:AAHUs04JflhGVqjgmkxCoV4RFqxfs7EJSfE'
 ADMIN_ID  =['718611792']
+SUPER_ADMIN_ID  ='626220085'
 
 GOOGLE ="https://docs.google.com/spreadsheets/d/1qvu3Wn0RXy3WyyetWimApzzTARtfQwNaajcnowmTdyw/edit#gid=0"
 JSON_FILE ="my-test-project-408312-296aa9c49a83.json"
