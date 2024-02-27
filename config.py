@@ -4,7 +4,7 @@ SUPER_ADMIN_ID  ='626220085'
 
 GOOGLE ="https://docs.google.com/spreadsheets/d/1qvu3Wn0RXy3WyyetWimApzzTARtfQwNaajcnowmTdyw/edit#gid=0"
 JSON_FILE ="my-test-project-408312-296aa9c49a83.json"
-
+'/Users/mac/Downloads/Новая папка с объектами/'
 
 INFO_MESSAGE = """
 Привет пользователь!!!Этот бот создан что бы помчь тебе вкусно покушать)

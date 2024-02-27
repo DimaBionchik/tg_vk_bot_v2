@@ -324,7 +324,7 @@ def handle_forwarded_messages(message):
 @bot.message_handler(func=lambda message: message.chat.id == admin_chat_id, commands=['addAdmin'])
 def handle_command_in_group(message):
     admin_id = message.from_user.id
-    if admin_id==config.SUPER_ADMIN_ID:
+    if admin_id==int(config.SUPER_ADMIN_ID):
         bot.send_message(message.chat.id, "Перешлите сообщение от юзера, которого вы хотите добавить.")
     else:
         bot.send_message(message.chat.id, "У вас недостаточно прав для выполнения этой команды ")
