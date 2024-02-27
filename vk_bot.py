@@ -13,9 +13,9 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 import json
 import gspread
 
-GROUP_ID = '224220385'
-GROUP_TOKEN = 'vk1.a.i80iLwDEHeHP1eDkdk3hLx1SCHxN4YPsqDd8zeXy37hscgLxfZNELsbIj5IsNmzgjpGfqtI04NcztcFwiOAHHP3z-fijwX52ySxdP_Rc--1zgqkes0s5GzAOdvYC8-FMxDkQPY26C6RmwcQyZjrGK49EAYL11e0jU1k1rf_4nSc6r6Yme6EucKmUu7SNqN7IruOcCclP7TyB-VZXYCNBmg'
-API_VERSION = '5.120'
+GROUP_ID = config.GROUP_ID_VK
+GROUP_TOKEN = config.GROUP_TOKEN_VK
+API_VERSION = config.API_VERSION_VK
 
 vk_session = VkApi(token=GROUP_TOKEN, api_version=API_VERSION)
 vk = vk_session.get_api()
@@ -25,7 +25,7 @@ gs = gspread.service_account(filename=config.JSON_FILE)
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = service_account.Credentials.from_service_account_file("my-test-project-408312-296aa9c49a83.json", scopes=scope)
 client = gspread.authorize(creds)
-spreadsheet_url = "https://docs.google.com/spreadsheets/d/1qvu3Wn0RXy3WyyetWimApzzTARtfQwNaajcnowmTdyw/edit#gid=0"
+spreadsheet_url = config.GOOGLE
 sheet = client.open_by_url(spreadsheet_url).sheet1
 sh_connection = gs.open_by_url(config.GOOGLE)
 worksheet = sh_connection.sheet1
@@ -46,12 +46,10 @@ for i in list_of_list[1:]:
     if info_dishes[i[0]][0] is True:
         category.setdefault(i[3], []).append(i[0])
 
-print(info_dishes)
 amount = 0
 amounts = 0
 MAX_CATEGORIES_ON_PAGE = 2
-
-
+g
 klava = VkKeyboard(one_time=False, inline=True)
 klava.add_callback_button(label="Да",color=VkKeyboardColor.SECONDARY,payload={"type":"da"})
 klava.add_callback_button(label="Нет",color=VkKeyboardColor.SECONDARY,payload={"type":"net"})
