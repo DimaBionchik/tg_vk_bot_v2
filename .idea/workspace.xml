@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35c60117-1f00-4497-838f-4f23e7306f8e" name="Changes" comment="version v.1 before Denis">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_data_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_data_base.py" afterDir="false" />
+    <list default="true" id="35c60117-1f00-4497-838f-4f23e7306f8e" name="Changes" comment="почти почти финальная версия">
       <change beforePath="$PROJECT_DIR$/tg_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/tg_bot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vk_tg1.db" beforeDir="false" afterPath="$PROJECT_DIR$/vk_tg1.db" afterDir="false" />
     </list>
@@ -31,16 +28,16 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "history": [
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
     {
-      "state": "OPEN"
+      &quot;state&quot;: &quot;OPEN&quot;
     }
   ],
-  "lastFilter": {
-    "state": "OPEN"
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">
     <option name="recentNewPullRequestHead">
       <RepoCoordinatesHolder>
@@ -58,9 +55,12 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2cSRupXCRoQnlUdropAGqligXAo" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="1" id="Add" />
@@ -69,16 +69,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.config.executor": "Run",
-    "Python.my_data_base.executor": "Run",
-    "Python.tg_bot.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.my_data_base.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tg_bot.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -164,7 +164,39 @@
       <option name="project" value="LOCAL" />
       <updated>1708511962474</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="почти финальная версия">
+      <option name="closed" value="true" />
+      <created>1708626495005</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1708626495005</updated>
+    </task>
+    <task id="LOCAL-00010" summary="почти финальная версия">
+      <option name="closed" value="true" />
+      <created>1708767544953</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1708767544953</updated>
+    </task>
+    <task id="LOCAL-00011" summary="почти финальная версия">
+      <option name="closed" value="true" />
+      <created>1708775739600</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1708775739601</updated>
+    </task>
+    <task id="LOCAL-00012" summary="почти почти финальная версия">
+      <option name="closed" value="true" />
+      <created>1708863302861</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1708863302861</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -184,7 +216,9 @@
     <MESSAGE value="db" />
     <MESSAGE value="new funtions" />
     <MESSAGE value="version v.1 before Denis" />
-    <option name="LAST_COMMIT_MESSAGE" value="version v.1 before Denis" />
+    <MESSAGE value="почти финальная версия" />
+    <MESSAGE value="почти почти финальная версия" />
+    <option name="LAST_COMMIT_MESSAGE" value="почти почти финальная версия" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

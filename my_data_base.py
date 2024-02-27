@@ -31,11 +31,12 @@ def insert_user_data( user_id, user_name, user_tel, user_address):
         """, (str(user_id), user_name, user_tel, user_address))
 
 def format_basket_item(name, item):
-    time, price_per_unit, quantity = map(int, item)
+    is_available, time, price_per_unit, quantity = item
+    time, price_per_unit, quantity = map(int, (time, price_per_unit, quantity))
     total_price = quantity * price_per_unit
     final_price = 0
-    final_price+=total_price
-    return f"{name}: количество {quantity} ., цена за штуку {price_per_unit}  ., время приготовления {time} ,конечная цена  {total_price}  "
+    final_price += total_price
+    return f"{name}: количество {quantity} ., цена за штуку {price_per_unit} ., время приготовления {time} ,конечная цена {total_price}, доступность {is_available}"
 
 def upd_user(user_id,baskets):
     con = sl.connect("vk_tg1.db")
