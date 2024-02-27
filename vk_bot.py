@@ -1,8 +1,7 @@
 import config
 
-import sqlite3 as sl
 import my_data_base
-import gspread
+
 from google.oauth2 import service_account
 import time
 import requests
@@ -46,33 +45,36 @@ for i in list_of_list[1:]:
     if info_dishes[i[0]][0] is True:
         category.setdefault(i[3], []).append(i[0])
 
+print(info_dishes)
 amount = 0
 amounts = 0
 MAX_CATEGORIES_ON_PAGE = 2
-g
+
 klava = VkKeyboard(one_time=False, inline=True)
-klava.add_callback_button(label="Да",color=VkKeyboardColor.SECONDARY,payload={"type":"da"})
-klava.add_callback_button(label="Нет",color=VkKeyboardColor.SECONDARY,payload={"type":"net"})
+klava.add_callback_button(label="Да", color=VkKeyboardColor.SECONDARY, payload={"type": "da"})
+klava.add_callback_button(label="Нет", color=VkKeyboardColor.SECONDARY, payload={"type": "net"})
+keyboard_menu = VkKeyboard(one_time=False, inline=True)
+keyboard_menu.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY, payload={"type": "В меню"})
+
+
 def upload_photo(peer_id, dish_key):
     upload_url = vk.photos.getMessagesUploadServer(peer_id=peer_id)['upload_url']
-
     with open('/Users/mac/Downloads/Новая папка с объектами/' + dish_key + '.jpg', 'rb') as photo:
         files = {'photo': photo}
         response = requests.post(upload_url, files=files)
         data = response.json()
-
     saved_photo = vk.photos.saveMessagesPhoto(
         photo=data['photo'],
         server=data['server'],
         hash=data['hash'])[0]
-
     return saved_photo['owner_id'], saved_photo['id']
+
+
 def gen_board(labels):
     global amount
     keyboard = VkKeyboard(one_time=False, inline=True)
     start_idx = amount * MAX_CATEGORIES_ON_PAGE
     end_idx = min((amount + 1) * MAX_CATEGORIES_ON_PAGE, len(labels))
-
     for i in range(start_idx, end_idx, 2):
         label1 = labels[i]
         keyboard.add_callback_button(label=label1, color=VkKeyboardColor.SECONDARY,
@@ -92,7 +94,8 @@ def gen_board(labels):
 
     return keyboard
 
-def gen_board_dishes(labels,category_name):
+
+def gen_board_dishes(labels, category_name):
     global amounts
 
     keyboards = VkKeyboard(one_time=False, inline=True)
@@ -102,23 +105,26 @@ def gen_board_dishes(labels,category_name):
     for i in range(start_idx, end_idx, 2):
         label1 = labels[i]
         keyboards.add_callback_button(label=label1, color=VkKeyboardColor.SECONDARY,
-                                     payload={"type": "dishes_name", "dishes_names": label1})
+                                      payload={"type": "dishes_name", "dishes_names": label1})
 
         if i + 1 < end_idx:
             label2 = labels[i + 1]
             keyboards.add_callback_button(label=label2, color=VkKeyboardColor.SECONDARY,
-                                         payload={"type": "dishes_name", "dishes_names": label2})
+                                          payload={"type": "dishes_name", "dishes_names": label2})
 
         keyboards.add_line()
 
     if amounts > 0:
-        keyboards.add_callback_button(label='Вернуться', color=VkKeyboardColor.PRIMARY, payload={"type": "Вернуться",  "dishes_name": category_name})
+        keyboards.add_callback_button(label='Вернуться', color=VkKeyboardColor.PRIMARY,
+                                      payload={"type": "Вернуться", "dishes_name": category_name})
     if end_idx < len(labels):
-        keyboards.add_callback_button(label='Вперед', color=VkKeyboardColor.PRIMARY,payload={"type": "Вперед", "dishes_name": category_name})
+        keyboards.add_callback_button(label='Вперед', color=VkKeyboardColor.PRIMARY,
+                                      payload={"type": "Вперед", "dishes_name": category_name})
     keyboards.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY,
-                 payload={"type": "В меню"})
+                                  payload={"type": "В меню"})
 
     return keyboards
+
 
 def start(event):
     user_id = event.obj.message['from_id']
@@ -127,13 +133,15 @@ def start(event):
         states[user_id] = {'state': None, 'shop_basket': None}
 
     if my_data_base.is_user_exest(user_id):
-        send_message(user_id=user_id, keyboard=gen_board(list(category.keys())).get_keyboard(), text='Выберите категорию.')
+        send_message(user_id=user_id, keyboard=gen_board(list(category.keys())).get_keyboard(),
+                     text='Выберите категорию.')
         states[user_id]['state'] = "Начало пользования."
         states[user_id]['shop_basket'] = None
     else:
         send_message(user_id, keyboard=None, text='Привет! Давай начнем. Введи свои данные.')
         states[user_id]['state'] = "Ожидание_имени"
     print(states)
+
 
 def process_message(event):
     user_id = event.obj.message['from_id']
@@ -163,22 +171,25 @@ def process_message(event):
     print(states)
 
 
-
-def get_keyboard(is_true = False,resp = None):
+def get_keyboard(is_true=False, resp=None):
     if is_true == False:
         keyboard_one = VkKeyboard(one_time=False, inline=True)
-        keyboard_one.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY,payload={"type": "В меню"})
-        keyboard_one.add_callback_button(label="В корзину",color=VkKeyboardColor.PRIMARY,payload={'type':"shop_bag"})
+        keyboard_one.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY, payload={"type": "В меню"})
+        keyboard_one.add_callback_button(label="В корзину", color=VkKeyboardColor.PRIMARY, payload={'type': "shop_bag"})
     else:
         keyboard_one = VkKeyboard(one_time=False, inline=True)
         keyboard_one.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY, payload={"type": "В меню"})
-        keyboard_one.add_callback_button(label="Оформить заказ", color=VkKeyboardColor.PRIMARY, payload={'type': "Order",'resonc':resp})
+        keyboard_one.add_callback_button(label="Изменить корзину", color=VkKeyboardColor.PRIMARY,
+                                         payload={'type': "change"})
+        keyboard_one.add_callback_button(label="Очистить корзину", color=VkKeyboardColor.PRIMARY,
+                                         payload={'type': "clear"})
+        keyboard_one.add_line()
+        keyboard_one.add_callback_button(label="Оформить заказ", color=VkKeyboardColor.PRIMARY,
+                                         payload={'type': "Order", 'resonc': resp})
     return keyboard_one
 
 
-
 def show_dish_info(dish_key, peer_id):
-
     if dish_key in info_dishes:
         dish_info_text = f"{dish_key}.\n\n"
         dish_info_text += '\n'.join(
@@ -188,9 +199,9 @@ def show_dish_info(dish_key, peer_id):
 
         owner_id, photo_id = upload_photo(peer_id, dish_key)
 
-
         keyboard = VkKeyboard(one_time=False, inline=True)
-        keyboard.add_callback_button(label="Добавить в корзину", color=VkKeyboardColor.PRIMARY, payload={"type": "add", "object": dish_key})
+        keyboard.add_callback_button(label="Добавить в корзину", color=VkKeyboardColor.PRIMARY,
+                                     payload={"type": "add", "object": dish_key})
         keyboard.add_callback_button(label="В меню", color=VkKeyboardColor.PRIMARY, payload={"type": "В меню"})
 
         vk.messages.edit(
@@ -200,6 +211,7 @@ def show_dish_info(dish_key, peer_id):
             keyboard=keyboard.get_keyboard(),
             conversation_message_id=event.obj.conversation_message_id
         )
+
 
 def send_message(user_id, keyboard, text):
     vk.messages.send(user_id=user_id, random_id=get_random_id(), keyboard=keyboard, message=text)
@@ -214,6 +226,7 @@ for event in longpol.listen():
             start(event)
 
         elif event.obj.message.get('text') == '/shop_bag':
+
             user_id = event.obj.message['from_id']
             print(f"user id = {user_id}")
             states_shop_basket = states[user_id]['shop_basket']
@@ -226,14 +239,17 @@ for event in longpol.listen():
                 states[user_id]['state'] = "юзер в корзине"
                 states[user_id]['shop_basket'] = states_shop_basket
                 print(states)
+                send_message(user_id, text=response, keyboard=get_keyboard(is_true=True, resp=response).get_keyboard())
 
-                send_message(user_id, keyboard=None, text=response)
+            else:
+                send_message(user_id, keyboard=keyboard_menu.get_keyboard(), text='Корзина пуста.')
+
 
         elif states[event.obj.message['from_id']]['state'] == "Ожидание_отзыва":
             user_id = event.obj.message['from_id']
             feedback_text = event.obj.message.get('text')
             basket = states[user_id]['shop_basket']
-            my_data_base.insert_into_disches_answer(response,user_id,feedback_text)
+            my_data_base.insert_into_disches_answer(response, user_id, feedback_text)
             send_message(event.obj.message['from_id'], None, "Спасибо за отзыв!")
             states[event.obj.message['from_id']]['state'] = None
 
@@ -244,14 +260,15 @@ for event in longpol.listen():
     elif event.type == VkBotEventType.MESSAGE_EVENT:
 
         if event.object.payload.get('type') in ('show_snackbar', 'open_link', 'open_app'):
-            vk.messages.sendMessageEventAnswer(event_id=event.object.event_id,user_id=event.object.user_id,
-                peer_id=event.object.peer_id,
-                event_data=json.dumps(event.object.payload))
+            vk.messages.sendMessageEventAnswer(event_id=event.object.event_id, user_id=event.object.user_id,
+                                               peer_id=event.object.peer_id,
+                                               event_data=json.dumps(event.object.payload))
 
         elif event.object.payload.get('type') == "Далее":
             amount += 1
-            vk.messages.edit(peer_id=event.obj.peer_id, message='Выберите категорию.',conversation_message_id=event.obj.conversation_message_id,
-                keyboard=gen_board(list(category.keys())).get_keyboard())
+            vk.messages.edit(peer_id=event.obj.peer_id, message='Выберите категорию.',
+                             conversation_message_id=event.obj.conversation_message_id,
+                             keyboard=gen_board(list(category.keys())).get_keyboard())
 
         elif event.object.payload.get('type') == "Назад" and amount > 0:
             amount -= 1
@@ -269,7 +286,7 @@ for event in longpol.listen():
                     peer_id=event.obj.peer_id,
                     message='Выберите блюда:',
                     conversation_message_id=event.obj.conversation_message_id,
-                    keyboard=gen_board_dishes(list(category[category_name]),category_name=category_name).get_keyboard()
+                    keyboard=gen_board_dishes(list(category[category_name]), category_name=category_name).get_keyboard()
                 )
 
         elif event.object.payload.get('type') == "Вернуться" and amounts > 0:
@@ -280,7 +297,8 @@ for event in longpol.listen():
                     peer_id=event.obj.peer_id,
                     message='Выберите блюда:',
                     conversation_message_id=event.obj.conversation_message_id,
-                    keyboard=gen_board_dishes(list(category[category_name]),category_name=category_name).get_keyboard())
+                    keyboard=gen_board_dishes(list(category[category_name]),
+                                              category_name=category_name).get_keyboard())
 
         elif event.object.payload.get('type') == "text":
             category_name = event.object.payload.get('category_name')
@@ -289,7 +307,8 @@ for event in longpol.listen():
                     peer_id=event.obj.peer_id,
                     message='Выберите блюда:',
                     conversation_message_id=event.obj.conversation_message_id,
-                    keyboard=gen_board_dishes(list(category[category_name]), category_name=category_name).get_keyboard())
+                    keyboard=gen_board_dishes(list(category[category_name]),
+                                              category_name=category_name).get_keyboard())
 
         elif event.object.payload.get('type') == "В меню":
             vk.messages.edit(
@@ -301,17 +320,21 @@ for event in longpol.listen():
         elif event.object.payload.get('type') == "dishes_name":
             dis_name = event.object.payload.get('dishes_names')
             if dis_name:
-               show_dish_info(dis_name,peer_id=event.obj.peer_id)
+                show_dish_info(dis_name, peer_id=event.obj.peer_id)
 
         elif event.object.payload.get('type') == "dishes_name":
             dis_name = event.object.payload.get('dishes_names')
             if dis_name:
-               show_dish_info(dis_name,peer_id=event.obj.peer_id)
+                show_dish_info(dis_name, peer_id=event.obj.peer_id)
 
         elif event.object.payload.get('type') == "add":
             user_id = event.obj.user_id
             dish_name = event.object.payload.get('object')
-            states[user_id]['shop_basket'] = {dish_name: info_dishes[dish_name] + [0]}
+            if states[user_id]['shop_basket'] is None:
+                states[user_id]['shop_basket'] = {}
+
+            if dish_name not in states[user_id]['shop_basket']:
+                states[user_id]['shop_basket'][dish_name] = info_dishes[dish_name] + [0]
             states[user_id]['shop_basket'][dish_name][-1] += 1
             states[user_id]['state'] = "Добавление товара."
             vk.messages.edit(
@@ -337,7 +360,58 @@ for event in longpol.listen():
                     peer_id=event.obj.peer_id,
                     message=response,
                     conversation_message_id=event.obj.conversation_message_id,
-                    keyboard=get_keyboard(is_true=True,resp = response).get_keyboard())
+                    keyboard=get_keyboard(is_true=True, resp=response).get_keyboard())
+
+
+        elif event.object.payload.get('type') == "clear":
+            user_id = event.obj.user_id
+
+            states_shop_basket = states[user_id]['shop_basket']
+            states_shop_basket.clear()
+            vk.messages.edit(
+                peer_id=event.obj.peer_id,
+                message='Корзина пуста 🛒',
+                conversation_message_id=event.obj.conversation_message_id,
+                keyboard=keyboard_menu.get_keyboard())
+            states[user_id]['state'] = "Очистка корзины."
+            states[user_id]['shop_basket'] = None
+
+
+        elif event.object.payload.get('type') == "change":
+            user_id = event.obj.user_id
+            states_shop_basket = states[user_id]['shop_basket']
+            dishes_to_change = [dish for dish in states_shop_basket]
+            print(dishes_to_change)
+            keyboard = VkKeyboard(one_time=False, inline=True)
+            for button in dishes_to_change:
+                keyboard.add_callback_button(label=button, color=VkKeyboardColor.PRIMARY,
+                                             payload={"type": '*' + button})
+            keyboard.add_line()
+            keyboard.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY, payload={"type": "В меню"})
+
+            vk.messages.edit(
+                peer_id=event.obj.peer_id,
+                message="Выберите товар для изменения.",
+                conversation_message_id=event.obj.conversation_message_id,
+                keyboard=keyboard.get_keyboard())
+
+        elif event.object.payload.get('type')[0] == "*":
+            user_id = event.obj.user_id
+            states_shop_basket = states[user_id]['shop_basket']
+            dish_info_text = f'{event.object.payload.get("type")[1:]}.\n\nСтоимость = {int(states_shop_basket[event.object.payload.get("type")[1:]][2]) * int(states_shop_basket[event.object.payload.get("type")[1:]][3])} BYN.' + f'\nКоличество = {states_shop_basket[event.object.payload.get("type")[1:]][3]}.'
+            keyboard_change = VkKeyboard(one_time=False, inline=True)
+            keyboard_change.add_callback_button(label='-', color=VkKeyboardColor.PRIMARY,
+                                                payload={"type": "-" + event.object.payload.get('type')[1:]})
+            keyboard_change.add_callback_button(label='Удалить', color=VkKeyboardColor.PRIMARY,
+                                                payload={"type": "d" + event.object.payload.get('type')[1:]})
+            keyboard_change.add_callback_button(label='+', color=VkKeyboardColor.PRIMARY,
+                                                payload={"type": "+" + event.object.payload.get('type')[1:]})
+            vk.messages.edit(
+                peer_id=event.obj.peer_id,
+                message=dish_info_text,
+                conversation_message_id=event.obj.conversation_message_id,
+                keyboard=keyboard_change.get_keyboard())
+
 
         elif event.object.payload.get('type') == "Order":
             user_id = event.obj.user_id
@@ -372,15 +446,18 @@ for event in longpol.listen():
                 conversation_message_id=event.obj.conversation_message_id,
                 keyboard=None)
 
+            my_data_base.upd()
+
             states_shop_basket.clear()
             states[user_id]['shop_basket'] = None
-            send_message(user_id,klava.get_keyboard() ,"Хотите оставить отзыв?")
+            send_message(user_id, klava.get_keyboard(), "Хотите оставить отзыв?")
             states[user_id]['state'] = "Заказ оформлен"
 
         elif event.object.payload.get('type') == "da":
             user_id = event.obj.user_id
-            send_message(user_id,None,"Напишите отзыв:")
+            send_message(user_id, None, "Напишите отзыв:")
             states[user_id]['state'] = "Ожидание_отзыва"
+
         elif event.object.payload.get('type') == "net":
             user_id = event.obj.user_id
             vk.messages.edit(
@@ -389,3 +466,54 @@ for event in longpol.listen():
                 conversation_message_id=event.obj.conversation_message_id,
                 keyboard=None)
 
+        elif event.object.payload.get('type')[0] in ['-', '+', 'd'] and event.object.payload.get('type')[1:] in \
+                states[event.obj.user_id]['shop_basket']:
+            states_shop_basket = states[event.obj.user_id]['shop_basket']
+            if event.object.payload.get('type')[0] in ['-', '+']:
+
+                states_shop_basket[event.object.payload.get('type')[1:]][3] = str(
+                    int(states_shop_basket[event.object.payload.get('type')[1:]][3]) + (
+                        1 if event.object.payload.get('type')[0] == '+' else -1))
+                print(states_shop_basket[event.object.payload.get('type')[1:]][3])
+                if int(states_shop_basket[event.object.payload.get('type')[1:]][3]) == 0:
+
+                    del states_shop_basket[event.object.payload.get('type')[1:]]
+                    vk.messages.edit(
+                        peer_id=event.obj.peer_id,
+                        message='Товар успешно удален.',
+                        conversation_message_id=event.obj.conversation_message_id,
+                        keyboard=keyboard_menu.get_keyboard())
+                else:
+                    total_cost = int(states_shop_basket[event.object.payload.get('type')[1:]][2]) * int(
+                        states_shop_basket[event.object.payload.get('type')[1:]][3])
+                    dish_info_text = f'{event.object.payload.get("type")[1:]}\n\nСтоимость = {total_cost} BYN.\nКоличество = {states_shop_basket[event.object.payload.get("type")[1:]][3]}.'
+
+                    keyboard_change = VkKeyboard(one_time=False, inline=True)
+                    keyboard_change.add_callback_button(label='-', color=VkKeyboardColor.PRIMARY,
+                                                        payload={"type": "-" + event.object.payload.get('type')[1:]})
+                    keyboard_change.add_callback_button(label='Удалить', color=VkKeyboardColor.PRIMARY,
+                                                        payload={"type": "d" + event.object.payload.get('type')[1:]})
+                    keyboard_change.add_callback_button(label='+', color=VkKeyboardColor.PRIMARY,
+                                                        payload={"type": "+" + event.object.payload.get('type')[1:]})
+                    keyboard_change.add_line()
+                    keyboard_change.add_callback_button(label='В меню', color=VkKeyboardColor.PRIMARY,
+                                                        payload={"type": "В меню"})
+
+                    vk.messages.edit(
+                        peer_id=event.obj.peer_id,
+                        message=dish_info_text,
+                        conversation_message_id=event.obj.conversation_message_id,
+                        keyboard=keyboard_change.get_keyboard())
+
+
+            elif event.object.payload.get('type')[0] == 'd':
+                user_id = event.obj.user_id
+                del states_shop_basket[event.object.payload.get('type')[1:]]
+                vk.messages.edit(
+                    peer_id=event.obj.peer_id,
+                    message='Товар успешно удален.',
+                    conversation_message_id=event.obj.conversation_message_id,
+                    keyboard=keyboard_menu.get_keyboard())
+                states[user_id]['state'] = "Удаление товаров из корзины"
+                states[user_id]['shop_basket'] = states_shop_basket
+                print(states)
