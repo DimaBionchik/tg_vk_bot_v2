@@ -49,7 +49,7 @@ for i in list_of_list[1:]:
 amount = 0
 amounts = 0
 MAX_CATEGORIES_ON_PAGE = 2
-
+g
 klava = VkKeyboard(one_time=False, inline=True)
 klava.add_callback_button(label="Да",color=VkKeyboardColor.SECONDARY,payload={"type":"da"})
 klava.add_callback_button(label="Нет",color=VkKeyboardColor.SECONDARY,payload={"type":"net"})
